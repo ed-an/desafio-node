@@ -16,8 +16,11 @@ app.get('/', (req,res) => {
     
     const sql = `INSERT INTO people(name) values('edmilson')`;
     connection.query(sql);
-    connection.end();
+    const query = `SELECT name FORM people`;
 
+    connection.query(query);
+    connection.end();
+    
     res.send('<h1>Full Cycle Rocks!</h1>')
 });
 
