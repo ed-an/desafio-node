@@ -1,4 +1,8 @@
 const express = require('express');
+const util = require('util');
+const mysql = require('mysql')
+var syncSql = require('sync-sql');
+
 const app     = express();
 const port    = 3000;
 const config = {
@@ -8,20 +12,24 @@ const config = {
     database: 'desafio'
 }
 
-app.get('/', (req,res) => {
-   
-    
-    const mysql      = require('mysql')
-    const connection = mysql.createConnection(config)
-    
-    const sql = `INSERT INTO people(name) values('edmilson')`;
-    connection.query(sql);
-    const query = `SELECT name FORM people`;
+const db = mysql.createConnection(config)
+db.connect((err) => {  
+    if (err) throw err
+     console.log("Connected");
+})
 
-    connection.query(query);
-    connection.end();
-    
-    res.send('<h1>Full Cycle Rocks!</h1>')
+function runQuery(query) {
+   return syncSql.mysql(config, query).data.rows
+}
+
+app.get('/', (req,res) => {
+    runQuery(`INSERT INTO people(name) values('edmilson1')`);
+    var data = runQuery(`SELECT * FROM people`);
+    const ulData = data.map((elements) => {
+        return `<li>${elements.id} - ${elements.name}</li>`;
+    });
+    res.send(`<html><head><title></title></head>
+    <body><h1>Full Cycle Rocks!</h1><ul>${ulData}</ul></body></html>`);
 });
 
 app.listen(port, ()=>{
